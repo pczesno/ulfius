@@ -252,7 +252,17 @@ struct _u_instance {
                                                        uint64_t off, 
                                                        size_t size, 
                                                        void * cls);
+  int                        (* post_processing_callback) (const struct _u_request * request,
+                                                         const char * key,
+                                                         const char * filename,
+                                                         const char * content_type,
+                                                         const char * transfer_encoding,
+                                                         const char * data,
+                                                         uint64_t off,
+                                                         size_t size,
+                                                         void * cls);
   void                        * file_upload_cls;
+  void                        * post_processing_cls;
 };
 
 /**
@@ -349,6 +359,19 @@ int ulfius_set_upload_file_callback_function(struct _u_instance * u_instance,
                                                                            const char * data, 
                                                                            uint64_t off, 
                                                                            size_t size, 
+                                                                           void * cls),
+                                             void * cls);
+
+
+int ulfius_set_post_processing_callback_function(struct _u_instance * u_instance,
+                                             int (* post_processing_callback) (const struct _u_request * request,
+                                                                           const char * key,
+                                                                           const char * filename,
+                                                                           const char * content_type,
+                                                                           const char * transfer_encoding,
+                                                                           const char * data,
+                                                                           uint64_t off,
+                                                                           size_t size,
                                                                            void * cls),
                                              void * cls);
 

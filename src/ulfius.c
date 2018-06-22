@@ -258,7 +258,14 @@ static int mhd_iterate_post_data (void * coninfo_cls, enum MHD_ValueKind kind, c
     
     if (cur_size > 0 && data_dup != NULL && u_map_put_binary((struct _u_map *)con_info->request->map_post_body, key, data_dup, off, cur_size + 1) == U_OK) {
       o_free(data_dup);
-      return MHD_YES;
+      if (con_info->u_instance != NULL && con_info->u_instance->post_processing_callback != NULL)
+      {
+          return con_info->u_instance->post_processing_callback(con_info->request, key, filename, content_type, transfer_encoding, data, off, size, con_info->u_instance->post_processing_cls);
+      }
+      else
+      {
+          return MHD_YES;
+      }
     } else {
       o_free(data_dup);
       return MHD_NO;
@@ -1157,6 +1164,26 @@ int ulfius_set_upload_file_callback_function(struct _u_instance * u_instance,
   if (u_instance != NULL && file_upload_callback != NULL) {
     u_instance->file_upload_callback = file_upload_callback;
     u_instance->file_upload_cls = cls;
+    return U_OK;
+  } else {
+    return U_ERROR_PARAMS;
+  }
+}
+
+int ulfius_set_post_processing_callback_function(struct _u_instance * u_instance,
+                                             int (* post_processing_callback) (const struct _u_request * request,
+                                                                           const char * key,
+                                                                           const char * filename,
+                                                                           const char * content_type,
+                                                                           const char * transfer_encoding,
+                                                                           const char * data,
+                                                                           uint64_t off,
+                                                                           size_t size,
+                                                                           void * cls),
+                                             void * cls) {
+  if (u_instance != NULL && post_processing_callback != NULL) {
+    u_instance->post_processing_callback = post_processing_callback;
+    u_instance->post_processing_cls = cls;
     return U_OK;
   } else {
     return U_ERROR_PARAMS;
