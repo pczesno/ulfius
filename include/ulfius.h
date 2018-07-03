@@ -140,6 +140,7 @@ struct _u_request {
   struct _u_map *      map_post_body;
   void *               binary_body;
   size_t               binary_body_length;
+  void *               context;
 };
 
 /**
