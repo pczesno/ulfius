@@ -408,6 +408,8 @@ int ulfius_init_response(struct _u_response * response) {
     response->stream_block_size = ULFIUS_STREAM_BLOCK_SIZE_DEFAULT;
     response->stream_callback_free = NULL;
     response->shared_data = NULL;
+    response->fd = -1;
+    response->fd_size = 0;
 #ifndef U_DISABLE_WEBSOCKET
     response->websocket_handle = o_malloc(sizeof(struct _websocket_handle));
     if (response->websocket_handle == NULL) {
@@ -624,6 +626,21 @@ int ulfius_set_empty_body_response(struct _u_response * response, const unsigned
     response->binary_body_length = 0;
     
     response->status = status;
+    return U_OK;
+  } else {
+    return U_ERROR_PARAMS;
+  }
+}
+
+int ulfius_set_fd_response(struct _u_response * response, const unsigned int status, int fd, size_t size) {
+  if (response != NULL) {
+    // Free all the bodies available
+    response->binary_body = NULL;
+    response->binary_body_length = 0;
+
+    response->status = status;
+    response->fd = fd;
+    response->fd_size = size;
     return U_OK;
   } else {
     return U_ERROR_PARAMS;

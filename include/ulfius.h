@@ -181,6 +181,8 @@ struct _u_response {
   void             * stream_user_data;
   void             * websocket_handle;
   void *             shared_data;
+  int                fd;
+  size_t             fd_size;
 };
 
 /**
@@ -608,6 +610,10 @@ int ulfius_set_stream_response(struct _u_response * response,
                                 size_t stream_block_size,
                                 void * stream_user_data);
 
+int ulfius_set_fd_response(struct _u_response * response,
+                               const unsigned int status,
+                               int fd,
+                               size_t size);
 /**
  * ulfius_init_request
  * Initialize a request structure by allocating inner elements
