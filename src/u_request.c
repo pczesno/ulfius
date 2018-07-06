@@ -268,6 +268,7 @@ int ulfius_init_request(struct _u_request * request) {
     request->client_address = NULL;
     request->binary_body = NULL;
     request->binary_body_length = 0;
+    request->context = NULL;
     return U_OK;
   } else {
     return U_ERROR_PARAMS;
