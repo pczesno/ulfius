@@ -260,7 +260,14 @@ static int mhd_iterate_post_data (void * coninfo_cls, enum MHD_ValueKind kind, c
       o_free(data_dup);
       if (con_info->u_instance != NULL && con_info->u_instance->post_processing_callback != NULL)
       {
-          return con_info->u_instance->post_processing_callback(con_info->request, key, filename, content_type, transfer_encoding, data, off, size, con_info->u_instance->post_processing_cls);
+          if (con_info->u_instance->post_processing_callback(con_info->request, key, filename, content_type, transfer_encoding, data, off, size, con_info->u_instance->post_processing_cls) == U_OK)
+          {
+              return MHD_YES;
+          }
+          else
+          {
+              return MHD_NO;
+          }
       }
       else
       {
@@ -328,6 +335,8 @@ static int ulfius_webservice_dispatcher (void * cls, struct MHD_Connection * con
     MHD_get_connection_values (connection, MHD_GET_ARGUMENT_KIND, ulfius_fill_map, &con_info->map_url_initial);
     MHD_get_connection_values (connection, MHD_COOKIE_KIND, ulfius_fill_map, con_info->request->map_cookie);
     content_type = (char*)u_map_get_case(con_info->request->map_header, ULFIUS_HTTP_HEADER_CONTENT);
+    // Initialize auth variables
+    con_info->request->auth_basic_user = MHD_basic_auth_get_username_password(connection, &con_info->request->auth_basic_password);
     
     // Set POST Processor if content-type is properly set
     if (content_type != NULL && (0 == o_strncmp(MHD_HTTP_POST_ENCODING_FORM_URLENCODED, content_type, strlen(MHD_HTTP_POST_ENCODING_FORM_URLENCODED)) || 
@@ -399,8 +408,6 @@ static int ulfius_webservice_dispatcher (void * cls, struct MHD_Connection * con
           response->map_header = u_map_copy(((struct _u_instance *)cls)->default_headers);
         }
         
-        // Initialize auth variables
-        con_info->request->auth_basic_user = MHD_basic_auth_get_username_password(connection, &con_info->request->auth_basic_password);
         
         for (i=0; current_endpoint_list[i] != NULL && !close_loop; i++) {
           current_endpoint = current_endpoint_list[i];
