@@ -206,6 +206,10 @@ static void mhd_request_completed (void *cls, struct MHD_Connection *connection,
   if (NULL == con_info) {
     return;
   }
+  if (NULL != con_info->u_instance->request_completed_callback)
+  {
+      con_info->u_instance->request_completed_callback(con_info->request, con_info->u_instance->request_completed_cls);
+  }
   if (NULL != con_info && con_info->has_post_processor && con_info->post_processor != NULL) {
     MHD_destroy_post_processor (con_info->post_processor);
   }
@@ -1209,6 +1213,19 @@ int ulfius_set_post_processing_callback_function(struct _u_instance * u_instance
   }
 }
 
+
+int ulfius_set_request_completed_callback_function(struct _u_instance * u_instance,
+                                             int (* request_completed_callback) (const struct _u_request * request, void * cls), void * cls)
+{
+    if (u_instance != NULL && request_completed_callback != NULL) {
+        u_instance->request_completed_callback = request_completed_callback;
+        u_instance->request_completed_cls = cls;
+        return U_OK;
+      } else {
+        return U_ERROR_PARAMS;
+      }
+}
+
 /**
  * ulfius_clean_instance
  * 
@@ -1267,6 +1284,9 @@ int ulfius_init_instance(struct _u_instance * u_instance, unsigned int port, str
     u_instance->max_post_body_size = 0;
     u_instance->file_upload_callback = NULL;
     u_instance->file_upload_cls = NULL;
+    u_instance->post_processing_callback = NULL;
+    u_instance->post_processing_cls = NULL;
+    u_instance->request_completed_callback = NULL;
 #ifndef U_DISABLE_WEBSOCKET
     u_instance->websocket_handler = o_malloc(sizeof(struct _websocket_handler));
     if (u_instance->websocket_handler == NULL) {

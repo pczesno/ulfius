@@ -264,8 +264,10 @@ struct _u_instance {
                                                          uint64_t off,
                                                          size_t size,
                                                          void * cls);
+  int                        (* request_completed_callback) (const struct _u_request * request, void * cls);
   void                        * file_upload_cls;
   void                        * post_processing_cls;
+  void                        * request_completed_cls;
 };
 
 /**
@@ -377,6 +379,9 @@ int ulfius_set_post_processing_callback_function(struct _u_instance * u_instance
                                                                            size_t size,
                                                                            void * cls),
                                              void * cls);
+
+int ulfius_set_request_completed_callback_function(struct _u_instance * u_instance,
+                                             int (* request_completed_callback) (const struct _u_request * request, void * cls), void * cls);
 
 /***********************************
  * Endpoints functions declarations
